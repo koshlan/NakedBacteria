@@ -34,7 +34,7 @@ shinyUI(fluidPage(
       textInput("ad2", label="Enter an additional custom search terms [regex]", value = NULL),
       submitButton("Submit"),
       
-      sliderInput("track_width_call",
+      sliderInput("track_width",
                   "Track Diameter:",
                   min = 5,
                   max = 16,
