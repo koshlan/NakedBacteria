@@ -1,6 +1,5 @@
 library(shiny)
 
-
 shinyUI(fluidPage(
 
   # Application title
@@ -11,6 +10,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       
       textInput("Input0", label="Enter Project Name", value = ""),
+      textInput("size_bp", label="Enter genome size", value = 1500000),
       selectizeInput("genomes", label = "Choose Dehalococcoides Strain:", 
                   choices =c("195" = "NC_002936.3",
                              "CBDB1" = "NC_007356.1",
@@ -34,11 +34,11 @@ shinyUI(fluidPage(
       textInput("ad2", label="Enter an additional custom search terms [regex]", value = NULL),
       submitButton("Submit"),
       
-      sliderInput("RandomThing",
+      sliderInput("track_width_call",
                   "Track Diameter:",
                   min = 5,
-                  max = 10,
-                  value = 1)
+                  max = 16,
+                  value = 14)
     ),
 
     # Show a plot of the generated distribution

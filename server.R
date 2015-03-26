@@ -106,13 +106,13 @@ make_gene_positions <- function(df, size_bp = 1500000){
   return(my_pos)
 }
 
-genome_ggbio <- function(my_ideogram, my_pos, geom_call = "rect", alpha_call = 0.5){
+genome_ggbio <- function(my_ideogram, my_pos, geom_call = "rect", alpha_call = 0.5, track_width_call = 14){
   library(ggbio)
   p <- ggplot() + layout_circle(my_ideogram, geom = "ideo", fill = "gray70", radius = 30, trackWidth = 4)
   p <- p + layout_circle(my_ideogram, geom = "scale", size = 2, radius = 35, trackWidth = 2)
   p <- p + layout_circle(my_pos, geom = geom_call, 
                          aes(y = bacteria, colour = keyword, fill = keyword, group = bacteria), 
-                         alpha = alpha_call ,linetype = "blank" , radius = 16 ,trackWidth = 14) + 
+                         alpha = alpha_call ,linetype = "blank" , radius = 16 ,trackWidth = track_width_call) + 
     scale_size(range = c(1, 5))
   return(p)
 } 
@@ -125,7 +125,7 @@ produce_genome_ggbio <- function(genomes, keywords, size_bp = 1500000){
   cs <- consolidate_selection(cs, keywords = keywords, column_value = "name", append_keyword = TRUE)
   my_ideogram <- make_ideogram(size_bp = size_bp)
   my_pos      <- make_gene_positions(cs, size_bp = size_bp)
-  gg <- genome_ggbio(my_ideogram = my_ideogram, my_pos = my_pos, geom_call = "point", alpha_call = 0.5)
+  gg <- genome_ggbio(my_ideogram = my_ideogram, my_pos = my_pos, geom_call = "point", alpha_call = 0.5, track_width_call = 14)
   return(gg)
 }
 
@@ -158,7 +158,7 @@ shinyServer(function(input, output) {
     } 
     print(keywords)
     #??additional_keywords <- input$additional_keywords
-    p <- produce_genome_ggbio(genomes, keywords)
+    p <- produce_genome_ggbio(genomes, keywords, track_width_call = inputs$track_width)
     p
     #df = data.frame(a=c(1,3),b=c(2,5))
     #ggplot(df, aes(a,b)) + geom_point()
