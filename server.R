@@ -157,14 +157,14 @@ produce_genome_ggbio <- function(genomes, keywords, size_bp = 1500000, track_wid
   my_ideogram <- make_ideogram(size_bp = size_bp)
   my_pos      <- make_gene_positions(cs, size_bp = size_bp)
   gg <- genome_ggbio(my_ideogram = my_ideogram, my_pos = my_pos, geom_call = "point", alpha_call = 0.5, track_width_call = track_width_call)
-  return(gg)
+  return(list(gg, cs))
 }
 
 
 shinyServer(function(input, output) {
   
   output$announce <- renderText({
-    "(c) 2015 by Koshlan made in California"
+    " 2015(c) made by Koshlan in California"
     })
   output$distPlot <- renderPlot({
     #print(input$Input1)
@@ -199,10 +199,14 @@ shinyServer(function(input, output) {
     #??additional_keywords <- input$additional_keywords
     print(input$track_width)
     if (do_locus_tag){
-      p <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = TRUE, df_locus = df_locus )
+      p_list <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = TRUE, df_locus = df_locus )
     }else{
-      p <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = FALSE, df_locus = NULL)
+      p_list <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = FALSE, df_locus = NULL)
     }
+    p <- p_list[[1]]
+    cs <- p_list[[2]]
+    output$mytable <- renderDataTable({df_locus})
+    output$mytable2 <- renderDataTable({cs})
     p
     #df = data.frame(a=c(1,3),b=c(2,5))
     #ggplot(df, aes(a,b)) + geom_point()
