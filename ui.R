@@ -11,7 +11,7 @@ shinyUI(fluidPage(
       
       textInput("Input0", label="Enter Project Name", value = ""),
       textInput("size_bp", label="Enter genome size", value = 1500000),
-      selectizeInput("genomes", label = "Choose Dehalococcoides Strain:", 
+      selectizeInput("genomes", label = "Choose Dehalococcoides Strain(s):", 
                   choices =c("195" = "NC_002936.3",
                              "CBDB1" = "NC_007356.1",
                              "BAV1" = "NC_009455.1",
@@ -32,6 +32,7 @@ shinyUI(fluidPage(
                      multiple = TRUE, options = NULL),
       textInput("ad1", label="Enter an additional custom search terms [regex]", value = NULL),
       textInput("ad2", label="Enter an additional custom search terms [regex]", value = NULL),
+      textInput("locus_tags", label="Enter locus tags of interest (seperated by commas with NO spaces)", value = NULL),
       submitButton("Submit"),
       
       sliderInput("track_width",

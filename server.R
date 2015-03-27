@@ -41,6 +41,13 @@ generate_keyword_index <- function(df_in, column_value = "name", keyword = "deha
   return(unname(index))
 }
 
+generate_locus_index <- function(df_locus, column_value = "locus_tag", tag_list = NULL){
+  if (!is.null(tag_list)){
+    index <- df_locus[[column_value]] %in% tag_list
+    return(index)
+  }
+}
+
 #' subset df by row ind 
 #'
 #' passes a logical index to subset df by row
@@ -68,6 +75,11 @@ keyword_df <- function(df_in, keyword = NULL){
     df_out <- df_in
     return(df_out)
   }
+  return(df_in)
+}
+
+keyword_by_locus <- function(df_in){
+  df_in$keyword <- df_in$locus_tag
   return(df_in)
 }
 
@@ -101,7 +113,23 @@ make_gene_positions <- function(df, size_bp = 1500000){
                     genome = as.factor(df$genome), 
                     bacteria = unclass(as.factor(df$genome)),
                     keyword = df$keyword
+                
   )
+  seqlengths(my_pos) <- c(size_bp)
+  return(my_pos)
+}
+
+make_locus_gene_positions <- function(df, size_bp = 1500000){
+  require(GenomicRanges)
+  my_IR <- IRanges(start = df$start, end =  df$end) 
+  print(my_IR)
+  N = dim(df)[1]
+  print(N)
+  my_pos <- GRanges(seqnames = rep("chr1", N),
+                    ranges= my_IR, 
+                    strand = df$strand, 
+                    genome = as.factor(df$genome), 
+                    bacteria = unclass(as.factor(df$genome)))
   seqlengths(my_pos) <- c(size_bp)
   return(my_pos)
 }
@@ -119,10 +147,13 @@ genome_ggbio <- function(my_ideogram, my_pos, geom_call = "rect", alpha_call = 0
 
 
 
-produce_genome_ggbio <- function(genomes, keywords, size_bp = 1500000, track_width_call = 14){
+produce_genome_ggbio <- function(genomes, keywords, size_bp = 1500000, track_width_call = 14, add_locus = FALSE, df_locus=NULL){
   df <- open_dataframe()
   cs <- consolidate_selection(df, keywords = genomes, column_value = "genome", append_keyword = FALSE)
   cs <- consolidate_selection(cs, keywords = keywords, column_value = "name", append_keyword = TRUE)
+  if (add_locus){
+    cs <- rbind(cs,df_locus)
+  }
   my_ideogram <- make_ideogram(size_bp = size_bp)
   my_pos      <- make_gene_positions(cs, size_bp = size_bp)
   gg <- genome_ggbio(my_ideogram = my_ideogram, my_pos = my_pos, geom_call = "point", alpha_call = 0.5, track_width_call = track_width_call)
@@ -138,8 +169,16 @@ shinyServer(function(input, output) {
   output$distPlot <- renderPlot({
     #print(input$Input1)
     genomes <-  input$genomes
-    
     keywords <- input$keywords
+    do_locus_tag <- FALSE
+    if (input$locus_tags != ""){
+      do_locus_tag = TRUE # SWITCH LOGIC DOWNBELOW
+      locus_tags <- unlist(strsplit(input$locus_tags, ","))
+      df_locus <- open_dataframe() #!!!! MAKE GENERAL
+      df_locus <- df_locus[df_locus$locus_tag %in% locus_tags,]
+      df_locus <- keyword_by_locus(df_locus) # Add locus_tags as there own keywords
+    }
+  
     
     if (length(keywords) < 1 ){
       keywords = c("dehalogenase","^tRNA","^hydrogenase") # "^tRNA","^hydrogenase","vinyl chloride")
@@ -159,7 +198,11 @@ shinyServer(function(input, output) {
     print(keywords)
     #??additional_keywords <- input$additional_keywords
     print(input$track_width)
-    p <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width)
+    if (do_locus_tag){
+      p <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = TRUE, df_locus = df_locus )
+    }else{
+      p <- produce_genome_ggbio(genomes, keywords, track_width_call = input$track_width, add_locus = FALSE, df_locus = NULL)
+    }
     p
     #df = data.frame(a=c(1,3),b=c(2,5))
     #ggplot(df, aes(a,b)) + geom_point()
