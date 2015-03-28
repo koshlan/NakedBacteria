@@ -177,6 +177,8 @@ shinyServer(function(input, output) {
       df_locus <- open_dataframe() #!!!! MAKE GENERAL
       df_locus <- df_locus[df_locus$locus_tag %in% locus_tags,]
       df_locus <- keyword_by_locus(df_locus) # Add locus_tags as there own keywords
+    } else {
+      df_locus <- open_dataframe() 
     }
   
     
