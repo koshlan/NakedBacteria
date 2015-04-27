@@ -34,7 +34,7 @@ open_dataframe <- function(rds_file = "dehalogenators.rds" ){
 #' 
 #' @param df_in is the input data.frame
 #' @param column_value is the name of the column to select
-#' @keyword is a key word to search in the column
+#' @param is a key word to search in the column
 #'
 generate_keyword_index <- function(df_in, column_value = "name", keyword = "dehalogenase"){
   index <- sapply(df_in[[column_value]], function(x) grepl(keyword,x,ignore.case = TRUE))  
