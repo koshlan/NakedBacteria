@@ -36,10 +36,26 @@ open_dataframe <- function(rds_file = "dehalogenators.rds" ){
 #' @param column_value is the name of the column to select
 #' @param is a key word to search in the column
 #'
-generate_keyword_index <- function(df_in, column_value = "name", keyword = "dehalogenase"){
+# generate_keyword_index <- function(df_in, column_value = "name", keyword = "dehalogenase"){
+#   index <- sapply(df_in[[column_value]], function(x) grepl(keyword,x,ignore.case = TRUE))  
+#   return(unname(index))
+# }
+generate_keyword_index <- function(df_in, column_value = "name", keyword = "dehalogenase", rejection_words = NULL){
   index <- sapply(df_in[[column_value]], function(x) grepl(keyword,x,ignore.case = TRUE))  
-  return(unname(index))
+  if (!is.null(rejection_words)){
+    reject_index <- rep(0, length(index))
+    for (word in rejection_words){
+      temp <- sapply(df_in[[column_value]], function(x) grepl(word,x,ignore.case = TRUE)) 
+      reject_index <- reject_index + temp
+    }    
+    reject_index <- (reject_index == 0)
+    index <- index & reject_index 
+    return(unname(index)) 
+  }else{
+    return(unname(index))  
+  }
 }
+
 
 generate_locus_index <- function(df_locus, column_value = "locus_tag", tag_list = NULL){
   if (!is.null(tag_list)){
